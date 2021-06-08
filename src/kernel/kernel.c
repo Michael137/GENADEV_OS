@@ -52,7 +52,7 @@ void main()
 	debug(DBG_BOTH, "Current EL: %d\n", el);
 
 
-	irq_init();
+	//irq_init();
 	timer_init();
 	enable_interrupt_controller();
 	enable_irq();
@@ -63,7 +63,7 @@ void main()
 
 
 	framebuffer_init();
-	// framebuffer_test();
+	//framebuffer_test();
 
 	framebuffer_set_background_color(0xFF27DFF8);
 

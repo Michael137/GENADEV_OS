@@ -21,6 +21,7 @@
 #include "timer.h"
 
 #include "../../../lib/debug/debug.h"
+#include "../../../lib/stdio/stdio.h"
 
 static unsigned int const interval = 5000000;
 
@@ -31,13 +32,29 @@ void system_timer_init(void) {
 	  interval, *TIMER_CLO);
 }
 
-void handle_timer_irq(void) {
+void handle_system_timer_irq(void) {
     unsigned int curNumTicks = *TIMER_CLO;
     curNumTicks += interval;
 
     *TIMER_C1 = curNumTicks;
     *TIMER_CS = TIMER_CS_M1;
     debug(DBG_BOTH, "Received timer IRQ");
+}
+
+void handle_timer_irq(void) {
+    uint32_t cntv_tval;
+    asm volatile("mrs %0, cntv_tval_el0" : "=r"(cntv_tval));
+
+    debug(DBG_BOTH, "handler CNTV_TVAL: %x\n", cntv_tval);
+
+	// clear cntv interrupt and set next 1sec timer.
+    uint32_t freq;
+    asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+    asm volatile("msr cntv_tval_el0, %0" ::"r"(freq));
+
+    uint32_t cntvct;
+	asm volatile("mrs %0, cntvct_el0" : "=r" (cntvct));
+    debug(DBG_BOTH, "handler CNTVCT: %x\n", cntvct);
 }
 
 void timer_init(void) {
@@ -51,9 +68,9 @@ void timer_init(void) {
     debug(DBG_BOTH, "[cntrfrq_el0 = 0x%x] [cntv_tval_el0 = 0x%x]\n", freq,
 	  cntv_tval);
 
-	*CORE0_TIMER_IRQCNTL = CNTVIRQ_CTL;
+    *CORE0_TIMER_IRQCNTL = CNTVIRQ_CTL;
 
-	// Enable virtual timer
-	uint32_t enable = 1;
-	asm volatile ("msr cntv_ctl_el0, %0" ::"r" (enable));
+    // Enable virtual timer
+    uint32_t enable = 1;
+    asm volatile("msr cntv_ctl_el0, %0" ::"r"(enable));
 }

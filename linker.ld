@@ -19,17 +19,39 @@
  */
 
 ENTRY(_start)
-
+ 
 SECTIONS
 {
-	.text.boot	: { *(.text.boot) }
-	.text.interrupts : { *(.text.interrupts) }
-	.text		: { *(.text*) }
-	.rodata		: { *(.rodata) }
-	.data		: { *(.data) }
-	.			= ALIGN(0x8);
-	
-	bss_begin	= .;
-	.bss		: { *(.bss*) } 
-	bss_end		= .;
+    /* Starts at LOADER_ADDR. */
+    . = 0x80000;
+    __start = .;
+    __text_start = .;
+    .text :
+    {
+        KEEP(*(.text.boot))
+        /*KEEP(*(.text.interrupts))*/
+        *(.text)
+    }
+    . = ALIGN(4096); /* align to page size */
+    __text_end = .;
+ 
+    __data_start = .;
+    .data :
+    {
+        *(.data)
+    }
+    . = ALIGN(4096); /* align to page size */
+    __data_end = .;
+ 
+    __bss_start = .;
+    .bss :
+    {
+        bss = .;
+        *(.bss)
+    }
+    . = ALIGN(4096); /* align to page size */
+    __bss_end = .;
+    __end = .;
 }
+__bss_size = (__bss_end - __bss_start)>>3;
+

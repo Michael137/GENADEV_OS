@@ -4,3 +4,5 @@
 *.bin
 .vscode/**
 gnu-arm
+*.swp
+*.sym

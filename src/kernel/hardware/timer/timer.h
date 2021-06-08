@@ -48,6 +48,16 @@ void handle_system_timer_irq(void);
 #define CORE2_TIMER_IRQCNTL ((uint32_t*)0x40000048)
 #define CORE3_TIMER_IRQCNTL ((uint32_t*)0x4000004C)
 
+#define CORE0_IRQ_SOURCE ((uint32_t*)0x40000060)
+#define CORE1_IRQ_SOURCE ((uint32_t*)0x40000064)
+#define CORE2_IRQ_SOURCE ((uint32_t*)0x40000068)
+#define CORE3_IRQ_SOURCE ((uint32_t*)0x4000006C)
+
+#define CORE_INT_SOURCE_CNTPSIRQ (1 << 0)
+#define CORE_INT_SOURCE_CNTPNSIRQ (1 << 1)
+#define CORE_INT_SOURCE_CNTHPIRQ (1 << 2)
+#define CORE_INT_SOURCE_CNTVIRQ (1 << 3)
+
 #define CNTPSIRQ_CTL (1 << 0)
 #define CNTPNSIRQ_CTL (1 << 1)
 #define CNTHPIRQ_CTL (1 << 2)

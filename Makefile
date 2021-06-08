@@ -29,9 +29,10 @@ OBJCPY	= $(ARCH)-objcopy
 
 QEMU_AARCH64 = qemu-system-aarch64
 
-CC_OPT			= -fno-omit-frame-pointer -mcpu=cortex-a53 -nostdlib -ffreestanding -std=gnu99 -mgeneral-regs-only -O2 -c
+CC_OPT			= -mcpu=cortex-a53 -nostdlib -ffreestanding -std=gnu99  -O2 -c -g -DPRINTF_DISABLE_SUPPORT_FLOAT=1 
 TARGET_ELF		= kernel8.elf
 TARGET_FINAL	= kernel8.img
+TARGET_SYM		= kernel8.sym
 
 C_FILES		= $(shell find src/ -type f -name '*.c')
 AS_FILES	= $(shell find src/ -type f -name '*.S')
@@ -53,14 +54,19 @@ setup: $(GNU_ARM_CC_TARBALL)
 
 run0: $(TARGET_FINAL)
 	@printf "Keep in mind: Qemu is using the uart device\n";
-	$(QEMU_AARCH64) -M raspi3 -kernel $(TARGET_FINAL) -serial stdio -d int
+	$(QEMU_AARCH64) -M raspi3 -kernel $(BUILD)/$(TARGET_ELF) -serial stdio #-d int
 
 run1: $(TARGET_FINAL)
 	@printf "Keep in mind: Qemu is using the mini-uart device\n";
 	$(QEMU_AARCH64) -M raspi3 -kernel $(TARGET_FINAL) -serial null -serial stdio -d int
 
+debug: $(TARGET_FINAL)
+	@printf "Keep in mind: Qemu is using the uart device\n";
+	$(QEMU_AARCH64) -M raspi3 -monitor stdio -kernel $(TARGET_FINAL)
+
 $(TARGET_FINAL): $(OBJ)
 	$(LD) -T linker.ld $^ -o $(BUILD)/$(TARGET_ELF)
+	$(OBJCPY) --only-keep-debug $(BUILD)/$(TARGET_ELF) $(BUILD)/$(TARGET_SYM)
 	$(OBJCPY) $(BUILD)/$(TARGET_ELF) -O binary $@
 
 clean:
