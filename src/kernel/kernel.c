@@ -51,9 +51,9 @@ void main()
 	);
 	debug(DBG_BOTH, "Current EL: %d\n", el);
 
-	irq_init();
+	//irq_init();
 	timer_init();
-	enable_interrupt_controller();
+//	enable_interrupt_controller();
 	enable_irq();
 
 	cpu_info();
@@ -68,5 +68,7 @@ void main()
 
 	printk(0xFF27DFF8, 0xFFF9AC37, "Hello World! My name is: %s.", "Tix3Dev");
 
-	for (;;) {}
+	for (;;) {
+		asm volatile ("wfi");
+	}
 }

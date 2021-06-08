@@ -24,7 +24,7 @@
 
 static unsigned int const interval = 5000000;
 
-void timer_init(void) {
+void system_timer_init(void) {
     *TIMER_C1 = *TIMER_CLO + interval;
     debug(DBG_BOTH,
 	  "Initialized system timer 1 at [interval = %u] [TIMER_CLO = %u]\n",
@@ -38,4 +38,22 @@ void handle_timer_irq(void) {
     *TIMER_C1 = curNumTicks;
     *TIMER_CS = TIMER_CS_M1;
     debug(DBG_BOTH, "Received timer IRQ");
+}
+
+void timer_init(void) {
+    uint32_t freq;
+    asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+    asm volatile("msr cntv_tval_el0, %0" ::"r"(freq));
+
+    uint32_t cntv_tval;
+    asm volatile("mrs %0, cntv_tval_el0" : "=r"(cntv_tval));
+
+    debug(DBG_BOTH, "[cntrfrq_el0 = 0x%x] [cntv_tval_el0 = 0x%x]\n", freq,
+	  cntv_tval);
+
+	*CORE0_TIMER_IRQCNTL = CNTVIRQ_CTL;
+
+	// Enable virtual timer
+	uint32_t enable = 1;
+	asm volatile ("msr cntv_ctl_el0, %0" ::"r" (enable));
 }
