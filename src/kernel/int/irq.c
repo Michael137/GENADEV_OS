@@ -1,7 +1,7 @@
 /*
      This file is part of an AArch64 hobbyist OS for the Raspberry Pi 3 B+ called GENADEV_OS
      Everything is openly developed on github: https://github.com/GENADEV/GENADEV_OS
-     Copyright (C) 2021  Yves Vollmeier and Tim Thompson
+     Copyright (C) 2021  Yves Vollmeier, Tim Thompson and Michael Buch
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU General Public License as published by
@@ -21,23 +21,35 @@
 #include "irq.h"
 #include "../../lib/debug/debug.h"
 
-void irq_unknown()
+void handle_irq_unknown(int esr, int elr)
 {
-	int esr;
-	int elr;
-	asm volatile(
-		"mrs %0, esr_el2\n"
-		"mrs %1, elr_el2\n"
-		: "=r"(esr), "=r"(elr)
-	);
-
 	debug(DBG_BOTH,
 		  "************************************\n"
 		  "Unhandled IRQ:\n"
-		  "\tesr_el2: 0x%lx\n"
-		  "\telr_el2: 0x%lx\n"
+		  "\tesr: 0x%lx\n"
+		  "\telr: 0x%lx\n"
 		  "************************************\n",
 		  esr, elr
 		 );
 
+}
+
+void handle_timer_irq(void)
+{}
+
+void handle_irq(void)
+{
+	unsigned int irq = get32(IRQ_PENDING_1);
+	switch(irq) {
+		case SYSTEM_TIMER_1:
+			handle_timer_irq();
+			break;
+		default:
+			debug(DBG_BOTH, "Unkown pending IRQ: %x\n", irq);
+	}
+}
+
+void enable_interrupt_controller(void)
+{
+	put32(ENABLE_IRQS_1, SYSTEM_TIMER_1);
 }

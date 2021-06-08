@@ -52,5 +52,13 @@ extern void irq_init();
 #define DISABLE_IRQS_2      (MMIO_BASE + 0x220)
 #define DISABLE_BASIC_IRQS  (MMIO_BASE + 0x224)
 
+/* From the ARM peripherals interrrupts table.
+ * Note that, system timer registers 2 and 4
+ * are reserved for the GPU, so they shouldn't
+ * be enabled explicitly */
+#define SYSTEM_TIMER_1 1
+#define SYSTEM_TIMER_3 3
+
+void enable_interrupt_controller();
 
 #endif // IRQ_H
