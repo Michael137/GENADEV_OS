@@ -51,9 +51,10 @@ void main()
 	);
 	debug(DBG_BOTH, "Current EL: %d\n", el);
 
-	//irq_init();
+
+	irq_init();
 	timer_init();
-//	enable_interrupt_controller();
+	enable_interrupt_controller();
 	enable_irq();
 
 	cpu_info();
