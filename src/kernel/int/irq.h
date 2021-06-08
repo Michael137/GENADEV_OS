@@ -1,7 +1,7 @@
 /*
  *   This file is part of an AArch64 hobbyist OS for the Raspberry Pi 3 B+ called GENADEV_OS 
  *   Everything is openly developed on github: https://github.com/GENADEV/GENADEV_OS
- *   Copyright (C) 2021  Yves Vollmeier and Tim Thompson
+ *   Copyright (C) 2021  Yves Vollmeier, Tim Thompson and Michael Buch
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -21,10 +21,12 @@
 #ifndef IRQ_H
 #define IRQ_H
 
+#include <stdint.h>
 #include "../hardware/gpio/mmio_base.h"
 #include "../utils.h"
 
 extern void irq_init();
+extern void enable_irq();
 
 /*
    https://github.com/raspberrypi/documentation/files/1888662/BCM2837-ARM-Peripherals.-.Revised.-.V2-1.pdf
@@ -41,23 +43,26 @@ extern void irq_init();
 #define IRQ_ARM_8 71 /* Illegal access type-0 interrupt */
 
 /* Referred to from the latter document */
-#define IRQ_BASIC_PENDING   (MMIO_BASE + 0x200)
-#define IRQ_PENDING_1       (MMIO_BASE + 0x204)
-#define IRQ_PENDING_2       (MMIO_BASE + 0x208)
-#define FIQ_CONTROL         (MMIO_BASE + 0x20C)
-#define ENABLE_IRQS_1       (MMIO_BASE + 0x210)
-#define ENABLE_IRQS_2       (MMIO_BASE + 0x214)
-#define ENABLE_BASIC_IRQS   (MMIO_BASE + 0x218)
-#define DISABLE_IRQS_1      (MMIO_BASE + 0x21C)
-#define DISABLE_IRQS_2      (MMIO_BASE + 0x220)
-#define DISABLE_BASIC_IRQS  (MMIO_BASE + 0x224)
+#define IRQ_BASIC_PENDING   ((uint32_t*) (MMIO_BASE + 0x200))
+#define IRQ_PENDING_1       ((uint32_t*) (MMIO_BASE + 0x204))
+#define IRQ_PENDING_2       ((uint32_t*) (MMIO_BASE + 0x208))
+#define FIQ_CONTROL         ((uint32_t*) (MMIO_BASE + 0x20C))
+#define ENABLE_IRQS_1       ((uint32_t*) (MMIO_BASE + 0x210))
+#define ENABLE_IRQS_2       ((uint32_t*) (MMIO_BASE + 0x214))
+#define ENABLE_BASIC_IRQS   ((uint32_t*) (MMIO_BASE + 0x218))
+#define DISABLE_IRQS_1      ((uint32_t*) (MMIO_BASE + 0x21C))
+#define DISABLE_IRQS_2      ((uint32_t*) (MMIO_BASE + 0x220))
+#define DISABLE_BASIC_IRQS  ((uint32_t*) (MMIO_BASE + 0x224))
 
 /* From the ARM peripherals interrrupts table.
- * Note that, system timer registers 2 and 4
+ * Note that, system timer registers 0 and 2
+ * (i.e., bits 1 and 3 on the IRQ table)
  * are reserved for the GPU, so they shouldn't
  * be enabled explicitly */
-#define SYSTEM_TIMER_1 1
-#define SYSTEM_TIMER_3 3
+#define SYSTEM_TIMER_1 (1 << 1)
+#define SYSTEM_TIMER_3 (1 << 3)
+
+#define BASE_IRQ_ARM_TIMER (1 << 0)
 
 void enable_interrupt_controller();
 

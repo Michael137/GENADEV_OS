@@ -24,6 +24,7 @@
 #include "hardware/framebuffer/framebuffer.h"
 #include "hardware/uart/mini_uart.h"
 #include "hardware/uart/uart0.h"
+#include "hardware/timer/timer.h"
 #include "int/irq.h"
 #include "../lib/debug/debug.h"
 #include "../lib/stdio/stdio.h"
@@ -51,6 +52,10 @@ void main()
 	debug(DBG_BOTH, "Current EL: %d\n", el);
 
 	irq_init();
+	timer_init();
+	enable_interrupt_controller();
+	enable_irq();
+
 	cpu_info();
 
 	// panic("Dummy kernel panic (p.s. it's a variadic function %s)", "(No really, it is!)");

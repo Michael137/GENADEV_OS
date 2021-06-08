@@ -19,6 +19,7 @@
 */
 
 #include "irq.h"
+#include "../hardware/timer/timer.h"
 #include "../../lib/debug/debug.h"
 
 void handle_irq_unknown(int esr, int elr)
@@ -34,12 +35,9 @@ void handle_irq_unknown(int esr, int elr)
 
 }
 
-void handle_timer_irq(void)
-{}
-
 void handle_irq(void)
 {
-	unsigned int irq = get32(IRQ_PENDING_1);
+	unsigned int irq = *IRQ_PENDING_1;
 	switch(irq) {
 		case SYSTEM_TIMER_1:
 			handle_timer_irq();
@@ -51,5 +49,9 @@ void handle_irq(void)
 
 void enable_interrupt_controller(void)
 {
-	put32(ENABLE_IRQS_1, SYSTEM_TIMER_1);
+	// System timer is not emulated on QEMU so below line
+	// doesn't habe an effect there
+	*ENABLE_IRQS_1 = SYSTEM_TIMER_1;
+
+	*ENABLE_BASIC_IRQS = BASE_IRQ_ARM_TIMER;
 }

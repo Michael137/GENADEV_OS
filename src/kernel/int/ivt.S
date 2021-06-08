@@ -103,7 +103,7 @@ ivt_desc:
 
     /* Exception taken from current EL with SP_ELx, x > 1 */
 	ivt_set_entry undefined_irq_stub // Synchronous
-	ivt_set_entry el1_irq_stub       // IRQ/vIRQ
+	ivt_set_entry elx_irq_stub       // IRQ/vIRQ
 	ivt_set_entry undefined_irq_stub // FIQ/vFIQ
 	ivt_set_entry undefined_irq_stub // SError/vSError
 
@@ -122,22 +122,22 @@ ivt_desc:
 	ivt_set_entry undefined_irq_stub // SError/vSError
 
 /* IRQ Handler Stubs: interrupt vectors that jump to IRQ handler subroutines */
-el1_irq_stub:
+elx_irq_stub:
 	on_interrupt_enter
 	b handle_irq
 	on_interrupt_exit
 
 undefined_irq_stub:
 	on_interrupt_enter
-	mrs x0, esr_el1
-	mrs x1, elr_el1
+	mrs x0, esr_el2
+	mrs x1, elr_el2
 	b handle_irq_unknown
 	b err_hang
 
 .global irq_init
 irq_init:
 	adr x0, ivt_desc //temp store
-	msr vbar_el1, x0 //load the ivt descriptor into the Vector-Base-Address-Register (Exception level 1)
+	msr vbar_el2, x0 //load the ivt descriptor into the Vector-Base-Address-Register (Exception level 2)
 	uart_asm_print loaded_irq_msg
 	ret
 
